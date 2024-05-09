@@ -1,0 +1,171 @@
+{
+  "Version": "1.0",
+  "OrgId": 7835,
+  "ClientId": "74ef6eaf-72cd-479f-9226-8c9c8e4c2b2a",
+  "ClientName": "Cott Family Farms(1)~1",
+  "FarmId": "472cff2a-a841-4067-955a-3bea5eddbce3",
+  "FarmName": "Simpson",
+  "FieldId": "7147638d-89cc-4970-a634-6a9fc13b02de",
+  "FieldName": "SimpsonTurnerBottomall",
+  "FieldOperationId": "44f5a5f0-1a2e-47e3-ac5f-7540cf2c8a1b",
+  "Operation": "Harvest",
+  "CropSeason": 2023,
+  "CropId": 173,
+  "CropToken": "CORN_WET",
+  "CropName": "Corn",
+  "Work": {
+    "WorkPlanId": "00000000-0000-0000-0000-000000000000",
+    "WorkOrder": ""
+  },
+  "Product": {
+    "ProductId": "4776faef-5abc-4037-9625-b6c1b21de308",
+    "ProductName": "DKC62-70RIB",
+    "BrandName": "---",
+    "TankMix": false
+  },
+  "FieldOperationStartDate": "2023-10-05T17:33:00.491Z",
+  "FileCreatedTimeStamp": "2023-10-10T02:42:55.3713693Z",
+  "DataAttributes": [
+    {
+      "Name": "DISTANCE",
+      "Unit": "ft",
+      "Description": "Distance Travelled From Previous Point"
+    },
+    {
+      "Name": "SWATHWIDTH",
+      "Unit": "ft",
+      "Description": "Width Of Element"
+    },
+    {
+      "Name": "VRYIELDVOL",
+      "Unit": "bu1ac-1",
+      "Description": "Yield as Volume"
+    },
+    {
+      "Name": "SECTIONID",
+      "Description": "Element Id"
+    },
+    {
+      "Name": "Crop",
+      "Description": "CropId"
+    },
+    {
+      "Name": "WetMass",
+      "Unit": "lb1ac-1",
+      "Description": "Wet Mass"
+    },
+    {
+      "Name": "Moisture",
+      "Unit": "prcnt",
+      "Description": "Moisture"
+    },
+    {
+      "Name": "Time",
+      "Description": "Timestamp"
+    },
+    {
+      "Name": "Heading",
+      "Description": "Machine Heading"
+    },
+    {
+      "Name": "VARIETY",
+      "Description": "Variety Name"
+    },
+    {
+      "Name": "Elevation",
+      "Unit": "ft",
+      "Description": "Elevation"
+    },
+    {
+      "Name": "IsoTime",
+      "Description": "Precise Timestamp"
+    },
+    {
+      "Name": "Machine",
+      "Description": "Index into the MachineUsage map, or 0 if no information exists"
+    },
+    {
+      "Name": "FUEL",
+      "Unit": "gal",
+      "Description": "Fuel"
+    },
+    {
+      "Name": "VEHICLSPEED",
+      "Unit": "mi1hr-1",
+      "Description": "Vehicle Speed"
+    },
+    {
+      "Name": "DRYMATTER",
+      "Unit": "prcnt",
+      "Description": "Dry Matter"
+    }
+  ],
+  "MachineUsage": {
+    "1": {
+      "MachineId": "89b88d18-bf91-cbd6-f066-d1b9b7629771",
+      "MachineName": "Einstein",
+      "MachineSerial": "1H0S780SEPT825864",
+      "OperatorId": "42578940-0c5e-405e-aaf1-04cbb7e9d273",
+      "OperatorName": "Kyle"
+    },
+    "2": {
+      "MachineId": "756fd610-a6a8-57b4-0cd9-b43b02e16349",
+      "MachineName": "Einstein",
+      "MachineSerial": "1H0S780SCPT825901",
+      "OperatorId": "92f09e2b-a23c-4d5f-ad35-48f24876730b",
+      "OperatorName": "Mark"
+    },
+    "3": {
+      "MachineId": "89b88d18-bf91-cbd6-f066-d1b9b7629771",
+      "MachineName": "Einstein",
+      "MachineSerial": "1H0S780SEPT825864",
+      "OperatorId": "b4a65cf3-5be0-429e-b9f0-70122757575d",
+      "OperatorName": "Cody"
+    }
+  },
+  "Implements": [],
+  "Products": [
+    {
+      "ProductId": "4776faef-5abc-4037-9625-b6c1b21de308",
+      "ProductName": "DKC62-70RIB",
+      "BrandName": "---",
+      "TankMix": false
+    },
+    {
+      "ProductId": "96fa2825-1202-48ed-9b47-59b4ba2a09bd",
+      "ProductName": "DKC70-27 1250 trtmt",
+      "BrandName": "---",
+      "TankMix": false
+    },
+    {
+      "ProductId": "00000000-0000-0000-0000-000000000000",
+      "ProductName": "---",
+      "BrandName": "---",
+      "TankMix": false
+    },
+    {
+      "ProductId": "ce147252-3c56-3629-a52e-2f12fc4659d4",
+      "ProductName": "G17E95-3110 w/PrimeC",
+      "BrandName": "---",
+      "TankMix": false
+    },
+    {
+      "ProductId": "611e9d7e-4479-491d-b1f4-e2549c0700c6",
+      "ProductName": "P1718AML",
+      "BrandName": "---",
+      "TankMix": false
+    },
+    {
+      "ProductId": "b97f02d6-7a28-3b4c-a6d1-5eeaa52cd02e",
+      "ProductName": "215-30DGVT2PRIB",
+      "BrandName": "---",
+      "TankMix": false
+    },
+    {
+      "ProductId": "6f46b429-888b-4e2e-9593-c9a531264b89",
+      "ProductName": "DKC68-35RIB",
+      "BrandName": "---",
+      "TankMix": false
+    }
+  ]
+}

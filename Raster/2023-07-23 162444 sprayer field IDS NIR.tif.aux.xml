@@ -1,0 +1,46 @@
+<PAMDataset>
+  <Metadata>
+    <MDI key="block_id">None</MDI>
+    <MDI key="camera_key">stack</MDI>
+    <MDI key="camsys_id">142</MDI>
+    <MDI key="date">2023-07-23</MDI>
+    <MDI key="farm_id">162444</MDI>
+    <MDI key="farm_name">sprayer field</MDI>
+    <MDI key="fixed">True</MDI>
+    <MDI key="flight_id">19252</MDI>
+    <MDI key="merge_dir">/tmp/tmpd3ziq38v/Flight 19252/registered masked/</MDI>
+    <MDI key="mosaic_version">0cc5a7e</MDI>
+    <MDI key="operations">['reorder_vnir_file']</MDI>
+    <MDI key="photoscan_version">1.7.2</MDI>
+    <MDI key="subfield_id">None</MDI>
+  </Metadata>
+  <Metadata domain="Esri">
+    <MDI key="PyramidResamplingType">NEAREST</MDI>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <Description>vnir800</Description>
+    <Histograms>
+      <HistItem>
+        <HistMin>0.1274833381175995</HistMin>
+        <HistMax>0.5524002909660339</HistMax>
+        <BucketCount>256</BucketCount>
+        <IncludeOutOfRange>1</IncludeOutOfRange>
+        <Approximate>0</Approximate>
+        <HistCounts>7|7|6|12|6|11|20|25|24|21|16|25|36|43|31|42|56|41|50|56|63|61|77|63|77|91|58|85|86|89|95|98|107|122|121|136|142|147|185|198|171|188|236|259|278|270|309|319|344|333|359|394|382|451|492|525|543|631|661|698|757|834|829|840|949|977|1083|1152|1235|1365|1343|1521|1606|1736|1784|1936|2059|2211|2318|2493|2659|2911|3110|3299|3674|3814|4257|4563|4828|5296|5533|5888|6162|6672|7001|7402|7737|7997|8603|9041|9555|9806|10475|10851|11422|11824|12574|13030|13443|14316|14556|15067|15653|16346|16974|17670|18396|19156|19795|20734|21417|22519|23639|24277|25496|26785|28453|29614|31342|32587|34701|36776|38028|40749|42606|45204|47752|50500|53083|56210|59753|62856|66011|69498|73224|76470|80613|84281|88093|91755|95454|98083|101368|103255|104808|105924|107728|107453|106638|104936|104102|101290|98864|94974|90468|86618|82013|77607|72602|67948|63031|58877|54425|50480|47038|43523|40073|37110|34094|31060|28112|25277|22560|20360|17968|15775|13682|11626|9947|8270|7049|5836|4685|3794|3078|2527|1885|1464|1097|845|669|433|337|246|176|119|93|70|48|42|26|23|16|10|13|10|6|3|5|2|4|3|5|2|1|2|4|1|0|2|2|0|0|0|1|0|1|1|1|0|2|0|0|0|1|1|0|1|0|1|0|0|0|0|1|1</HistCounts>
+      </HistItem>
+    </Histograms>
+    <Metadata>
+      <MDI key="Band">800.0</MDI>
+      <MDI key="cam_id">166</MDI>
+      <MDI key="STATISTICS_COVARIANCES">0.001343239352483337</MDI>
+      <MDI key="STATISTICS_EXCLUDEDVALUES"></MDI>
+      <MDI key="STATISTICS_MAXIMUM">0.55240029096603</MDI>
+      <MDI key="STATISTICS_MEAN">0.3771224744398</MDI>
+      <MDI key="STATISTICS_MEDIAN">0.382434</MDI>
+      <MDI key="STATISTICS_MINIMUM">0.1274833381176</MDI>
+      <MDI key="STATISTICS_SKIPFACTORX">1</MDI>
+      <MDI key="STATISTICS_SKIPFACTORY">1</MDI>
+      <MDI key="STATISTICS_STDDEV">0.036650229910375</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>

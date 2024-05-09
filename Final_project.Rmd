@@ -1,0 +1,210 @@
+---
+title: "Geog728_Project"
+author: "Rahul Singh"
+date: "2024-05-07"
+output: html_document
+---
+
+```{r setup, include=FALSE, fig.align = "center"}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Github: 
+
+### Introduction
+Fertilizer application is crucial in crop production, with U.S. farmers using approximately 44 billion pounds in 2015, nitrogen being the most utilized at 59% (USDA, 2019). Nitrogen significantly impacts crop growth, yield, and quality, and its improper application can lead to economic losses and environmental issues (Schepers et al., 1991; Carpenter et al., 1998; Kuivila et al., 1995; Brady et al., 2006; Werner et al., 2004). Uniform rate application, where the same amount of fertilizer is spread across the field, often results in low recovery rates and environmental damage due to spatial variability (Khosla et al., 1999; Thrikawala et al., 1999). Hence, there's a need for site-specific fertilizer management. Variable rate nitrogen application, utilizing site-specific zones, is more cost-effective and environmentally friendly, controlling input costs and increasing yields (Koch et al., 2004; Taylor & Fulton, 2010).
+Variable rate application employs two main technologies: map-based and sensor-based. Map-based systems, relying on GPS, generate site-specific fertilizer maps from soil/plant samples sent for laboratory analysis, ideal for consistent soil properties. However, the high cost limits sampling. Sensor-based systems, measuring properties on-the-go, offer real-time adjustments without GPS. Though accurate, concerns about sensor responsiveness exist (Balafoutis et al., 2017; Shanahan et al., 2008). Comparing sensor-based variable rate application with constant rate application is essential to understand crop yield and vigor differences. 
+
+### Objective  
+A study was conducted to evaluate crop vigor and yield variations between constant rate and sensor-based variable rate application methods.
+
+### Libraries Used
+For this study, the following libraries were used (see below in code).
+```{r}
+library(pacman)
+p_load(raster,sf,tidyverse,multcompView, spatstat, spdep)
+```
+
+### Methodology: 
+
+#### 1. Data Preparation and Visualization
+* **Loading Datasets:** The analysis begins by loading raster and vector datasets using the raster::stack and sf::st_read functions, respectively. The raster dataset contains four bands representing Red Edge, Near Infra-red, Red, and Green. Two vector datasets are loaded: yield_points, representing yield data, and treatments, representing treatment polygons. The treatment names in the treatment shapefile were N25, VRA1, VRA2, CRA, Pres_VRA. N25 treatment is the the control where no nutrient application methods are used. VRA1 and VRA2 are variable rate nutrient application methods applied at different days. CRA was the constant rate nutrient application method and Pres_VRA is the prescription based nutrient application method. VRA1 and VRA2 application was done using sensor and Pres_VRA was applied using a prescription based map. 
+
+```{r}
+raster<- raster::stack("Ceres/R1.tif") # Band1: Red edge, Band2: NIR, Band3: Red and Band4: Green
+yield_points <- st_read("Yield_2023/Cott Family _Simpson_SimpsonTurne_Harvest_2023-10-05_00.shp")
+treatments <- st_read("Strips_treatement/treatment.shp")
+
+st_crs(raster)
+st_crs(yield_points)
+st_crs(treatments)
+```
+All the dataset files are in geographic coordinate system of WGS 1984. 
+
+* **Projection:** The raster dataset is projected into a projected coordinate reference system (CRS) using the projectRaster function. Similarly, both vector datasets (yield_points and treatments) are transformed to the same projected CRS using the st_transform function.
+
+```{r}
+# Reproject into projected coordinate system: NAD83/ Zone 14N
+raster <- projectRaster(raster, crs= 32614)
+yield_points <- st_transform(yield_points, crs= 32614)
+treatments <- st_transform(treatments, crs =32614)
+```
+
+* **Visualization:** The Red Edge and Near Infra-red bands from the raster dataset are visualized using the plot function. Additionally, the yield points and treatment polygons are plotted on a map using the ggplot function, with yield volume represented by color.
+
+```{r, fig.align = "center"}
+par(mfrow = c(1,2))
+plot(raster$R1_1, main = "Red Edge band")
+plot(raster$R1_2, main = "Near Infra-red band")
+
+ggplot()+
+  geom_sf(data = treatments) + 
+  ggtitle("Treatment plots") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot()+
+  geom_sf(data = yield_points, aes(col = VRYIELDVOL)) +
+  geom_sf(data = treatments, fill = NA) +
+  ggtitle("Corn yield (bu./ac)") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+#### 2. NDRE Calculation
+* **Normalized Difference Red-edge Index (NDRE):** NDRE is calculated using the formula: (NIR - Red Edge) / (NIR + Red Edge), where NIR is the Near Infra-red band and Red Edge is the Red Edge band from the raster dataset. The resulting NDRE map is visualized using the plot function.
+
+```{r, fig.align='center'}
+# Step 2: Calculate NDRE (Normalized Difference red-edge index)
+ndre <- (raster$R1_2 - raster$R1_1) / (raster$R1_2 + raster$R1_1)
+plot(ndre, main = "NDRE map")
+```
+
+#### 3. Mean NDRE Calculation for Each Treatment
+* **Extraction of NDRE Values:** Mean NDRE values for each treatment polygon are obtained using the raster::extract function, specifying the treatment polygons as the spatial object and mean as the aggregation function.
+
+```{r}
+# Using extract function to get mean ndre values for each treatment
+treatments <- st_zm(treatments)
+mean_NDRE <- raster::extract(ndre, treatments, fun = mean, na.rm=TRUE)
+mean_ndre_table <- data.frame(treatment_id = treatments$NAME, mean_ndre = mean_NDRE)
+mean_ndre_table
+```
+
+#### 4. Spatial Join between Treatment Polygons and Yield Points
+* **Spatial Join:** A spatial join is performed between the yield points and treatment polygons using the st_join function. This operation links each yield point to its corresponding treatment polygon.
+Yield Mean Calculation: The mean yield volume for each treatment is calculated using the aggregate function, grouping by the treatment polygons.
+
+```{r}
+# Spatial join between treatment polygons and yield points
+yield_treatments <- st_join(yield_points, treatments)
+yield_mean <- aggregate(yield_treatments$VRYIELDVOL, 
+                        by=list(yield_treatments$NAME), FUN=mean)
+
+# Renaming the column name to Yield
+yield_mean <- yield_mean %>%
+  rename("Yield" = x)
+yield_mean
+
+# Joining the mean_ndre and yield_mean table by using treatment id
+result <- left_join(mean_ndre_table, yield_mean, by = c("treatment_id" = "Group.1"))
+print(result)
+
+# Adding a new column and changing treatment names for statistical analysis
+stat <- result %>%
+  mutate(Treatment = substr(treatment_id, 1, nchar(treatment_id) - 2))
+stat
+```
+
+#### 5. Statistical Analysis
+* **Linear Regression:** Linear regression models are fitted to assess the relationship between yield volume and treatment, and between mean NDRE and treatment. Summary statistics are generated for each regression model using the summary function.
+* **ANOVA:** Analysis of variance (ANOVA) is performed for each regression model to test for significant differences among treatment groups. The aov function is used to fit the ANOVA model, and summary statistics are obtained.
+* **Tukey's HSD Test:** Tukey's Honestly Significant Difference (HSD) test is conducted to identify significant differences between treatment groups. The TukeyHSD function is applied to the ANOVA model results, and results are visualized using the plot function.
+
+```{r}
+# Linear model to check the significance of yield values with treatments
+x1<- lm(stat$Yield ~stat$Treatment-1,data=stat)
+summary(x1)
+```
+From the linear model results, we can infer that the different treatment levels (CRA, N25, PRES, VRA1, VRA2) have a significant impact on yield, as indicated by their highly significant coefficients and small p-values. The model also exhibits a very high R^2 value, indicating that it explains a large proportion of the variability in the yield data.
+
+```{r, fig.align='center'}
+# Anova, Tukey HSD for comapring treatments yield values
+fm1 <- aov(x1)
+tukey1 <- TukeyHSD(fm1)
+
+par(mar = c(5, 8, 4, 2))
+plot(TukeyHSD(fm1), las =1)
+```
+The Tukey HSD plot tells about the significance of the yield values within the treatments. x-axis denotes the difference in the mean levels of the treatment and y-axis represents the treatments for which the significance was being tested. If the plots for the treatent pairs intersects with the vertical zero line, it means that there was no significant difference between the treatment pairs. From the tukey HSD plot, we can conclude that the yield values of N25 treatment was significantly different from all the other treatments yield values. However, the all the treatments yield except N25 were significantly the same.
+
+```{r}
+# Linear model to check the significance of ndre values with treatments
+x2<- lm(stat$mean_ndre~ stat$Treatment-1,data=stat)
+summary(x2)
+```
+From the linear model results, we can infer that the different treatment levels (CRA, N25, PRES, VRA1, VRA2) have a significant impact on mean ndre, as indicated by their highly significant coefficients and small p-values. The model also exhibits a very high R^2 value, indicating that it explains a large proportion of the variability in the yield data.
+
+```{r, fig.align='center'}
+# Anova, Tukey HSD for comapring treatments ndre values
+fm2 <- aov(x2)
+tukey2 <- TukeyHSD(fm2)
+par(mar = c(5, 8, 4, 2))
+plot(TukeyHSD(fm2), las =1)
+```
+From the tukey HSD plot, we can conclude that the ndre values of N25 treatment was significantly different from all the other treatments. However, the all the treatments ndre values except N25 treatment were significantly the same.
+
+From the above results, we can conclude that both ndre and yield were significantly affected by the different treatment levels. Both the observed parameters (i.e. ndre and yield) shows the same trend across treatment levels.
+
+#### 6. Visualization of Residuals
+* **Residual Analysis:** Residuals from the linear regression model for yield volume are visualized on a map using the ggplot function. Residuals are represented by color, with a color gradient indicating the magnitude of residuals. 
+
+```{r, fig.align='center'}
+# Checking for regression residuals for yield values across different treatment levels
+trt_data <- left_join(treatments, stat, by = c("NAME"= "treatment_id"))
+trt_data.ols <- lm(Yield~ Treatment,data=trt_data)
+trt_data$resid <- residuals(trt_data.ols)
+ggplot() +
+  geom_sf(data = trt_data,aes(fill = resid), color = "white", size = 0.1) +
+  scale_fill_viridis_c()
+```
+
+From the plot, we can see that the residuals varies from -10 to 10. There are some treatments with similar residual values. The residual value of zero depicted that the predicted and observed value were the same. However, the positive and negative residual values depicted the predicted value to be higher and lower lower than the observed value, respectively. It seemed like there was a spatial autocorrelation between residual values. We can confirm the relationship statistically using Moran's I test.
+
+#### 7. Spatial Analysis
+* **Spatial Autocorrelation:** Spatial autocorrelation is assessed using Moran's I test. The treatment polygons are converted to spatial objects, and neighborhood relationships are defined using the poly2nb and nb2listw functions. Moran's I test is performed using the lm.morantest function.
+
+```{r}
+trt_data <- as(trt_data, "Spatial")
+trt_data_nb <- poly2nb(trt_data, queen=F)
+trt_data_w <- nb2listw(trt_data_nb, style = "B", zero.policy = T)
+lm.morantest(trt_data.ols, trt_data_w)
+```
+
+From the results, we can see that the p-value is higher than 0.05. We can infer that there is no spatial autocorrelation in regression residuals for different treatments.
+
+### Conclusion
+The study was conducted to assess the crop vigor and yield differences across different treatments representing different nutrient applications. The ndre values were calculated to check the crop vigor. Higher ndre values depicts higher crop vigor/health. In this study, we first imported the datasets using raster and sf package. All the datasets were reprojected to the projected coordinate system. The raster file was used to create the ndre map. The extract function was used to calculate mean ndre values for each treatment polygon. For the yield values, the spatial join function was used to spatially link the yield points value with treatment polygons. The aggregate function was used to extract the mean yield for each treatment polygon. The left join function was used to connect the yield and ndre outputs together using treatment id. After the data extraction, the linear model was sued to check the significance of treatment levels with yield and ndre values. From the results, we found out that there was a strong significance of yield and ndre with treatment levels with high R^2 values. The Tukey HSD test was also conducted to check the significant difference across treatment levels. The results depicted that N25 treatment was significantly different than other treatments. However the other treatments were significantly same when checked for yield and ndre values separately. The yield and ndre values across different treatment levels shows the same trend. The spatial autocorrelation for regression residuals of different treatment levels were also tested. We found out that there was no spatial autocorrelation between different treatment levels regression residuals. From this study, we can conclude that the farmer can use any nutrient application method to achieve higher crop vigor and yield as there was no significant different in crops yield and vigor across different nutrient application methods.
+
+### References
+* Balafoutis, A., Beck, B., Fountas, S., Vangeyte, J., Wal, T., Soto, I., Gómez-Barbero, M., Barnes, A., & Eory, V. (2017). Precision agriculture technologies contribute positively to greenhouse gas emissions mitigation, farm productivity, and economics. Sustainability, 9(8), 1339. doi:10.3390/su9081339
+
+* Brady, J. A., Wallender, W. W., Werner, I., Fard, B. M., Zalom, F. G., Oliver, M. N., … Upadhaya, S. (2006). Pesticide runoff from orchard floors in Davis, California, USA: A comparative analysis of diazinon and esfenvalerate. Agricultural Ecosystems & Environment, 115(1–4), 56–68. doi:10.1016/j.agee.2005.12.009
+
+* Carpenter, S. R., Caraco, N. F., Correll, D. L., Howarth, R. W., Sharpley, A. N., & Smith, V. H. (1998). Nonpoint pollution of surface waters with phosphorus and nitrogen. Ecological Applications, 8(3), 559–568. doi:10.1890/10510761(1998)008[0559:NPOSWW]2.0.CO;2
+
+* Khosla, R., Alley, M. M., & Griffith, W. K. (1999). Soil-specific management on mid-Atlantic coastal plain soils. Better Crops Plant Food, 83(3), 6-7.
+
+* Koch, B., Khosla, R., Frasier, W. M., Westfall, D. G., & Inman, D. (2004). Economic feasibility of variable-rate nitrogen application utilizing site-specific management zones. Agronomy Journal, 96(6), 1572–1580. doi:10.2134/agronj2004.1572
+
+* Kuivila, K. M., & Foe, C. G. (1995). Concentrations, transport and biological effects of dormant spray pesticides in the San Francisco Estuary, California. Environmental Toxicology and Chemistry, 14(7), 1141–1150. doi:10.1002/etc.5620140704
+
+* Schepers, J. S., Moravek, M. G., Alberts, E. E., & Frank, K. D. (1991). Maize production impacts on groundwater quality. Journal of Environmental Quality, 20(1), 12–16. doi:10.2134/jeq1991.00472425002000010004x
+
+* Shanahan, J. F., Kitchen, N. R., Raun, W. R., & Schepers, J. S. (2008). Responsive in-season nitrogen management for cereals. Computers and Electronics in Agriculture, 61(1), 51–62. doi:10.1016/j.compag.2007.06.006
+
+* Taylor, R., & Fulton, J. (2010). Sensor-based variable rate application for cotton. Oklahoma Cooperative Extension Service. Oklahoma State University. Stillwater, Oklahoma.
+
+* Thrikawala, S., Weersink, A., Fox, G., & Kachanoski, G. (1999). Economic feasibility of variable-rate technology for nitrogen on corn. American Journal of Agricultural Economics, 81(4), 914–927. doi:10.2307/1244334
+
+* USDA. (2019). Economic Research Services. Retrieved from https://www.ers.usda.gov/webdocs/DataFiles/50341/fertilizeruse.xls?v=1547.2
+
+* Werner, I., Zalom, F. G., Oliver, M. N., Deanovic, L. A., Kimball, T. S., Henderson, J. D., … Wallender, W. W. (2004). Toxicity of storm-water runoff after dormant spray application in a French prune orchard, Glenn County, California, USA: Temporal patterns and the effect of ground covers. Environmental Toxicology and Chemistry, 23(11), 2719. doi:10.1897/03-572
