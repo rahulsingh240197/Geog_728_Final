@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Github: 
+Github: https://github.com/rahulsingh240197/Geog_728_Final
 
 ### Introduction
 Fertilizer application is crucial in crop production, with U.S. farmers using approximately 44 billion pounds in 2015, nitrogen being the most utilized at 59% (USDA, 2019). Nitrogen significantly impacts crop growth, yield, and quality, and its improper application can lead to economic losses and environmental issues (Schepers et al., 1991; Carpenter et al., 1998; Kuivila et al., 1995; Brady et al., 2006; Werner et al., 2004). Uniform rate application, where the same amount of fertilizer is spread across the field, often results in low recovery rates and environmental damage due to spatial variability (Khosla et al., 1999; Thrikawala et al., 1999). Hence, there's a need for site-specific fertilizer management. Variable rate nitrogen application, utilizing site-specific zones, is more cost-effective and environmentally friendly, controlling input costs and increasing yields (Koch et al., 2004; Taylor & Fulton, 2010).
